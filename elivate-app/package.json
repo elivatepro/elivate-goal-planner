@@ -9,18 +9,21 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@pdfme/common": "^5.5.8",
+    "@pdfme/generator": "^5.5.8",
+    "@react-pdf/renderer": "^4.3.1",
+    "clsx": "^2.1.1",
+    "dom-to-image-more": "^3.7.2",
+    "jspdf": "^2.5.1",
     "next": "16.1.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "@react-pdf/renderer": "^4.3.1",
     "react-hook-form": "^7.53.0",
-    "zustand": "^4.5.2",
-    "clsx": "^2.1.1",
-    "html2canvas": "^1.4.1",
-    "jspdf": "^2.5.1"
+    "zustand": "^4.5.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/dom-to-image": "^2.6.7",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

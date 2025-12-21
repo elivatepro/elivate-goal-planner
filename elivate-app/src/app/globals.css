@@ -228,3 +228,48 @@ textarea {
     min-width: 44px;
   }
 }
+
+/* PDF Template - Override all colors to standard hex/rgb for html2canvas compatibility */
+.pdf-template,
+.pdf-template * {
+  /* Override Tailwind colors with standard equivalents */
+  --tw-text-opacity: 1 !important;
+  --tw-bg-opacity: 1 !important;
+  --tw-border-opacity: 1 !important;
+}
+
+.pdf-template .text-gray-900 {
+  color: #0f172a !important;
+}
+
+.pdf-template .text-gray-600 {
+  color: #4b5563 !important;
+}
+
+.pdf-template .text-gray-500 {
+  color: #6b7280 !important;
+}
+
+.pdf-template .text-green-700 {
+  color: #15803d !important;
+}
+
+.pdf-template .bg-white {
+  background-color: #ffffff !important;
+}
+
+.pdf-template .bg-gray-50 {
+  background-color: #f9fafb !important;
+}
+
+.pdf-template .bg-green-50 {
+  background-color: #f0fdf4 !important;
+}
+
+.pdf-template .border-gray-200 {
+  border-color: #e5e7eb !important;
+}
+
+.pdf-template .border-green-700 {
+  border-color: #15803d !important;
+}

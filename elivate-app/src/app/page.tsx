@@ -1,11 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { pdf } from "@react-pdf/renderer";
-import type { DocumentProps } from "@react-pdf/renderer";
-import { useEffect, useMemo, useRef, useState, type ReactElement, type RefObject } from "react";
+import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import Link from "next/link";
-import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { useForm } from "react-hook-form";
 import clsx from "clsx";
@@ -20,10 +17,17 @@ import {
   convertUsdToNgn,
 } from "@/lib/calculations";
 import { Currency } from "@/lib/types";
-import { YearlyPlanDoc } from "@/components/pdf/YearlyPlanDoc";
-import { MonthlyPlanDoc } from "@/components/pdf/MonthlyPlanDoc";
-import { GoalCardDoc } from "@/components/pdf/GoalCardDoc";
-import { PdfPreviewModal } from "@/components/PdfPreviewModal";
+import { YearlyPlanHTML } from "@/components/pdf/YearlyPlanHTML";
+import { MonthlyPlanHTML } from "@/components/pdf/MonthlyPlanHTML";
+import { GoalCardHTML } from "@/components/pdf/GoalCardHTML";
+import {
+  generateYearlyPlanPDF,
+  generateMonthlyPlanPDF,
+  generateGoalCardPDF,
+  generateYearlyPlanPreview,
+  generateMonthlyPlanPreview,
+  generateGoalCardPreview,
+} from "@/lib/pdf-generator";
 
 const yearlySteps = [
   { key: "vision", label: "Vision" },
@@ -52,52 +56,32 @@ const rankOptions = [
   "Diamond Director",
 ];
 
-async function generateAndDownload(
-  element: ReactElement<DocumentProps>,
-  filename: string,
-  setStatus: (value: string) => void,
-  options?: { preview?: boolean },
-) {
-  try {
-    setStatus("Generating PDF...");
-    const previewWindow = options?.preview ? window.open("", "_blank") : null;
-
-    const blob = await pdf(element).toBlob();
-    const url = URL.createObjectURL(blob);
-
-    if (previewWindow) {
-      previewWindow.location.href = url;
-    }
-
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = filename;
-    link.click();
-    URL.revokeObjectURL(url);
-    setStatus("Downloaded.");
-    setTimeout(() => setStatus(""), 2000);
-  } catch (error) {
-    console.error(error);
-    setStatus("Failed to generate PDF. Try again.");
-  }
-}
-
-async function generateHtmlPdfFromRef(
-  node: HTMLDivElement | null,
+async function generatePdfFromHtml(
+  element: HTMLElement,
   filename: string,
   setStatus: (value: string) => void,
 ) {
-  if (!node) return;
   try {
     setStatus("Generating PDF...");
-    const canvas = await html2canvas(node, { scale: 2, useCORS: true });
-    const imgData = canvas.toDataURL("image/png");
-    const pdfDoc = new jsPDF("p", "pt", "a4");
+
+    // Dynamically import dom-to-image-more (client-side only)
+    const domtoimage = await import("dom-to-image-more");
+
+    // Use dom-to-image-more which handles modern CSS better
+    const imgData = await domtoimage.toPng(element, {
+      bgcolor: '#ffffff',
+      quality: 1,
+      cacheBust: true,
+    });
+
+    const pdfDoc = new jsPDF("p", "mm", "a4");
     const pageWidth = pdfDoc.internal.pageSize.getWidth();
     const pageHeight = pdfDoc.internal.pageSize.getHeight();
+
     const imgProps = pdfDoc.getImageProperties(imgData);
     const imgWidth = pageWidth;
     const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+
     pdfDoc.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
     pdfDoc.save(filename);
     setStatus("Downloaded.");
@@ -106,6 +90,92 @@ async function generateHtmlPdfFromRef(
     console.error(error);
     setStatus("Failed to generate PDF. Try again.");
   }
+}
+
+async function generatePdfPreview(
+  element: HTMLElement,
+  setStatus: (value: string) => void,
+): Promise<string | null> {
+  try {
+    setStatus("Generating preview...");
+
+    // Dynamically import dom-to-image-more (client-side only)
+    const domtoimage = await import("dom-to-image-more");
+
+    // Use dom-to-image-more which handles modern CSS better
+    const imgData = await domtoimage.toPng(element, {
+      bgcolor: '#ffffff',
+      quality: 1,
+      cacheBust: true,
+    });
+
+    const pdfDoc = new jsPDF("p", "mm", "a4");
+    const pageWidth = pdfDoc.internal.pageSize.getWidth();
+    const pageHeight = pdfDoc.internal.pageSize.getHeight();
+
+    const imgProps = pdfDoc.getImageProperties(imgData);
+    const imgWidth = pageWidth;
+    const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+
+    pdfDoc.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+    const blob = pdfDoc.output("blob");
+    const url = URL.createObjectURL(blob);
+    setStatus("");
+    return url;
+  } catch (error) {
+    console.error(error);
+    setStatus("Failed to generate preview.");
+    return null;
+  }
+}
+
+function SimplePreviewModal({
+  isOpen,
+  onClose,
+  onDownload,
+  pdfUrl,
+  title,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onDownload: () => void;
+  pdfUrl: string;
+  title: string;
+}) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="relative w-full max-w-4xl h-[90vh] bg-white rounded-lg shadow-xl flex flex-col">
+        <div className="flex items-center justify-between p-4 border-b">
+          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={onDownload}
+              className="button button-primary"
+            >
+              Download PDF
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="button button-secondary"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+        <div className="flex-1 overflow-hidden">
+          <iframe
+            src={pdfUrl}
+            className="w-full h-full border-0"
+            title="PDF Preview"
+          />
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function Home() {
@@ -145,7 +215,7 @@ export default function Home() {
   return (
     <>
       <div className="min-h-screen bg-page px-4 py-8 sm:py-10">
-        <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
+        <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
           <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <Link
               href="/"
@@ -401,8 +471,7 @@ function MemberGate({ onSuccess }: { onSuccess: (id: string) => void }) {
           Enter your Member ID to access the Goal Planner
         </h1>
         <p className="mt-2 text-muted">
-          Exclusive access for Elivate Network members. We do not store any
-          data.
+          Exclusive access for Elivate Network members. 
         </p>
       </div>
 
@@ -1087,7 +1156,7 @@ function NetworkStep({ onNext, onBack }: { onNext: () => void; onBack: () => voi
             placeholder="Go deep. Who depends on this?"
             {...register("why", {
               required: "Please explain why this matters.",
-              minLength: { value: 60, message: "Use at least 60 characters." },
+              minLength: { value: 30, message: "Use at least 30 characters." },
             })}
           />
           {errors.why && (
@@ -1767,38 +1836,103 @@ function YearlyReview({
   const [pdfStatus, setPdfStatus] = useState<string>("");
   const [showYearlyPreview, setShowYearlyPreview] = useState(false);
   const [showGoalCardPreview, setShowGoalCardPreview] = useState(false);
+  const [yearlyPreviewUrl, setYearlyPreviewUrl] = useState<string | null>(null);
+  const [goalCardPreviewUrl, setGoalCardPreviewUrl] = useState<string | null>(null);
+
+  const yearlyPlanRef = useRef<HTMLDivElement>(null);
+  const goalCardPdfRef = useRef<HTMLDivElement>(null);
 
   const handleStartOver = () => {
     reset();
     setCurrentStep(0);
   };
 
-  const handleDownloadYearlyPdf = () => {
-    generateAndDownload(
-      <YearlyPlanDoc
-        yearly={yearly}
-        calculations={calculations}
-        memberId={memberId}
-        year="2026"
-      />,
-      "Elivate-Yearly-Plan.pdf",
-      setPdfStatus,
-    );
+  const handleDownloadYearlyPdf = async () => {
+    setPdfStatus("Generating PDF...");
+    try {
+      await generateYearlyPlanPDF({
+        yearly,
+        calculations,
+        memberId: memberId || "ELV",
+        signatureName: yearly.commitment.signatureName,
+        year: "2026",
+      });
+      setPdfStatus("Downloaded.");
+      setTimeout(() => setPdfStatus(""), 2000);
+    } catch (error) {
+      console.error("PDF generation failed", error);
+      setPdfStatus("Failed to generate PDF. Try again.");
+    }
   };
 
-  const handleDownloadGoalCard = () => {
-    const safeName = yearly.commitment.signatureName?.trim() || memberId || "Elivate";
-    const fileName = `Elivate-Goal-Card-${safeName.replace(/\s+/g, "_")}.pdf`;
-    generateAndDownload(
-      <GoalCardDoc
-        yearly={yearly}
-        calculations={calculations}
-        memberId={memberId}
-        signatureName={yearly.commitment.signatureName}
-      />,
-      fileName,
-      setPdfStatus,
-    );
+  const handleDownloadGoalCard = async () => {
+    setPdfStatus("Generating Goal Card...");
+    try {
+      await generateGoalCardPDF({
+        yearly,
+        calculations,
+        memberId: memberId || "ELV",
+        signatureName: yearly.commitment.signatureName,
+      });
+      setPdfStatus("Downloaded.");
+      setTimeout(() => setPdfStatus(""), 2000);
+    } catch (error) {
+      console.error("Goal Card PDF generation failed", error);
+      setPdfStatus("Failed to generate PDF. Try again.");
+    }
+  };
+
+  const handleShowYearlyPreview = async () => {
+    setPdfStatus("Generating preview...");
+    try {
+      const url = await generateYearlyPlanPreview({
+        yearly,
+        calculations,
+        memberId: memberId || "ELV",
+        signatureName: yearly.commitment.signatureName,
+        year: "2026",
+      });
+      setYearlyPreviewUrl(url);
+      setShowYearlyPreview(true);
+      setPdfStatus("");
+    } catch (error) {
+      console.error("Preview generation failed", error);
+      setPdfStatus("Failed to generate preview.");
+    }
+  };
+
+  const handleShowGoalCardPreview = async () => {
+    setPdfStatus("Generating preview...");
+    try {
+      const url = await generateGoalCardPreview({
+        yearly,
+        calculations,
+        memberId: memberId || "ELV",
+        signatureName: yearly.commitment.signatureName,
+      });
+      setGoalCardPreviewUrl(url);
+      setShowGoalCardPreview(true);
+      setPdfStatus("");
+    } catch (error) {
+      console.error("Preview generation failed", error);
+      setPdfStatus("Failed to generate preview.");
+    }
+  };
+
+  const handleCloseYearlyPreview = () => {
+    setShowYearlyPreview(false);
+    if (yearlyPreviewUrl) {
+      URL.revokeObjectURL(yearlyPreviewUrl);
+      setYearlyPreviewUrl(null);
+    }
+  };
+
+  const handleCloseGoalCardPreview = () => {
+    setShowGoalCardPreview(false);
+    if (goalCardPreviewUrl) {
+      URL.revokeObjectURL(goalCardPreviewUrl);
+      setGoalCardPreviewUrl(null);
+    }
   };
 
   return (
@@ -1859,10 +1993,10 @@ function YearlyReview({
         <button type="button" className="button button-secondary w-full sm:w-auto" onClick={onBack}>
           Back
         </button>
-        <button type="button" className="button button-primary w-full sm:w-auto sm:flex-1" onClick={() => setShowYearlyPreview(true)}>
+        <button type="button" className="button button-primary w-full sm:w-auto sm:flex-1" onClick={handleShowYearlyPreview}>
           Preview & Download Plan
         </button>
-        <button type="button" className="button button-secondary w-full sm:w-auto" onClick={() => setShowGoalCardPreview(true)}>
+        <button type="button" className="button button-secondary w-full sm:w-auto" onClick={handleShowGoalCardPreview}>
           Preview Goal Card
         </button>
         <button
@@ -1875,35 +2009,47 @@ function YearlyReview({
         {pdfStatus && <span className="text-sm text-muted text-center">{pdfStatus}</span>}
       </div>
 
-      <PdfPreviewModal
-        isOpen={showYearlyPreview}
-        onClose={() => setShowYearlyPreview(false)}
-        onDownload={handleDownloadYearlyPdf}
-        pdfDocument={
-          <YearlyPlanDoc
+      {/* Hidden HTML templates for PDF generation */}
+      <div className="hidden">
+        <div ref={yearlyPlanRef}>
+          <YearlyPlanHTML
             yearly={yearly}
             calculations={calculations}
             memberId={memberId}
+            signatureName={yearly.commitment.signatureName}
             year="2026"
           />
-        }
-        title="Yearly Plan Preview"
-      />
-
-      <PdfPreviewModal
-        isOpen={showGoalCardPreview}
-        onClose={() => setShowGoalCardPreview(false)}
-        onDownload={handleDownloadGoalCard}
-        pdfDocument={
-          <GoalCardDoc
+        </div>
+        <div ref={goalCardPdfRef}>
+          <GoalCardHTML
             yearly={yearly}
             calculations={calculations}
             memberId={memberId}
             signatureName={yearly.commitment.signatureName}
           />
-        }
-        title="Goal Card Preview"
-      />
+        </div>
+      </div>
+
+      {/* Preview Modals */}
+      {showYearlyPreview && yearlyPreviewUrl && (
+        <SimplePreviewModal
+          isOpen={showYearlyPreview}
+          onClose={handleCloseYearlyPreview}
+          onDownload={handleDownloadYearlyPdf}
+          pdfUrl={yearlyPreviewUrl}
+          title="Yearly Plan Preview"
+        />
+      )}
+
+      {showGoalCardPreview && goalCardPreviewUrl && (
+        <SimplePreviewModal
+          isOpen={showGoalCardPreview}
+          onClose={handleCloseGoalCardPreview}
+          onDownload={handleDownloadGoalCard}
+          pdfUrl={goalCardPreviewUrl}
+          title="Goal Card Preview"
+        />
+      )}
     </div>
   );
 }
@@ -2180,18 +2326,54 @@ function MonthlyReview({ onBack }: { onBack: () => void }) {
   const { monthly, calculations, memberId, reset, setCurrentStep } = useGoalStore();
   const [pdfStatus, setPdfStatus] = useState<string>("");
   const [showMonthlyPreview, setShowMonthlyPreview] = useState(false);
+  const [monthlyPreviewUrl, setMonthlyPreviewUrl] = useState<string | null>(null);
 
-  const handleDownloadMonthlyPdf = () => {
-    generateAndDownload(
-      <MonthlyPlanDoc monthly={monthly} calculations={calculations} memberId={memberId} />,
-      "Elivate-Monthly-Plan.pdf",
-      setPdfStatus,
-    );
+  const monthlyPlanRef = useRef<HTMLDivElement>(null);
+
+  const handleDownloadMonthlyPdf = async () => {
+    setPdfStatus("Generating Monthly Plan...");
+    try {
+      await generateMonthlyPlanPDF({
+        monthly,
+        calculations,
+        memberId: memberId || "ELV",
+      });
+      setPdfStatus("Downloaded.");
+      setTimeout(() => setPdfStatus(""), 2000);
+    } catch (error) {
+      console.error("Monthly Plan PDF generation failed", error);
+      setPdfStatus("Failed to generate PDF. Try again.");
+    }
   };
 
   const handleStartOver = () => {
     reset();
     setCurrentStep(0);
+  };
+
+  const handleShowMonthlyPreview = async () => {
+    setPdfStatus("Generating preview...");
+    try {
+      const url = await generateMonthlyPlanPreview({
+        monthly,
+        calculations,
+        memberId: memberId || "ELV",
+      });
+      setMonthlyPreviewUrl(url);
+      setShowMonthlyPreview(true);
+      setPdfStatus("");
+    } catch (error) {
+      console.error("Preview generation failed", error);
+      setPdfStatus("Failed to generate preview.");
+    }
+  };
+
+  const handleCloseMonthlyPreview = () => {
+    setShowMonthlyPreview(false);
+    if (monthlyPreviewUrl) {
+      URL.revokeObjectURL(monthlyPreviewUrl);
+      setMonthlyPreviewUrl(null);
+    }
   };
 
   return (
@@ -2226,7 +2408,7 @@ function MonthlyReview({ onBack }: { onBack: () => void }) {
         <button type="button" className="button button-secondary w-full sm:w-auto" onClick={onBack}>
           Back
         </button>
-        <button type="button" className="button button-primary w-full sm:w-auto sm:flex-1" onClick={() => setShowMonthlyPreview(true)}>
+        <button type="button" className="button button-primary w-full sm:w-auto sm:flex-1" onClick={handleShowMonthlyPreview}>
           Preview & Download Plan
         </button>
         <button
@@ -2239,19 +2421,27 @@ function MonthlyReview({ onBack }: { onBack: () => void }) {
         {pdfStatus && <span className="text-sm text-muted text-center">{pdfStatus}</span>}
       </div>
 
-      <PdfPreviewModal
-        isOpen={showMonthlyPreview}
-        onClose={() => setShowMonthlyPreview(false)}
-        onDownload={handleDownloadMonthlyPdf}
-        pdfDocument={
-          <MonthlyPlanDoc
+      {/* Hidden HTML template for PDF generation */}
+      <div className="hidden">
+        <div ref={monthlyPlanRef}>
+          <MonthlyPlanHTML
             monthly={monthly}
             calculations={calculations}
             memberId={memberId}
           />
-        }
-        title="Monthly Plan Preview"
-      />
+        </div>
+      </div>
+
+      {/* Preview Modal */}
+      {showMonthlyPreview && monthlyPreviewUrl && (
+        <SimplePreviewModal
+          isOpen={showMonthlyPreview}
+          onClose={handleCloseMonthlyPreview}
+          onDownload={handleDownloadMonthlyPdf}
+          pdfUrl={monthlyPreviewUrl}
+          title="Monthly Plan Preview"
+        />
+      )}
     </div>
   );
 }
