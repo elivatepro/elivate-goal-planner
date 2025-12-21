@@ -12,6 +12,10 @@ const lexend = Lexend({
 export const metadata: Metadata = {
   title: "Elivate Goal Planner",
   description: "Plan your yearly and monthly goals for the Elivate Network.",
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({
