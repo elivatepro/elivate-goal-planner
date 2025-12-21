@@ -1,18 +1,12 @@
-import { Document, Font, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
+import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 import { YearlyGoals, Calculations } from "@/lib/types";
 import { formatCurrency } from "@/lib/calculations";
-
-// Use Lexend via a system fallback if not embedded; renderer will fall back to Helvetica.
-Font.register({
-  family: "Lexend",
-  fonts: [{ src: "https://fonts.gstatic.com/s/lexend/v19/wlpxgwvFAVdoq2_On5ImPWh5.woff2" }],
-});
 
 const styles = StyleSheet.create({
   page: {
     padding: 40,
     fontSize: 11,
-    fontFamily: "Lexend",
+    fontFamily: "Helvetica",
     backgroundColor: "#ffffff",
     color: "#0f172a",
     lineHeight: 1.4,
