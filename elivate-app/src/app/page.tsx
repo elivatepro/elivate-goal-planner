@@ -1835,6 +1835,7 @@ function YearlyReview({
   goalCardRef: RefObject<HTMLDivElement | null>;
 }) {
   const { yearly, calculations, memberId, reset, setCurrentStep } = useGoalStore();
+  const { teamName } = useBrandingStore();
   const [pdfStatus, setPdfStatus] = useState<string>("");
   const [showYearlyPreview, setShowYearlyPreview] = useState(false);
   const [showGoalCardPreview, setShowGoalCardPreview] = useState(false);
