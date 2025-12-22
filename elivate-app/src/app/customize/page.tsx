@@ -10,11 +10,18 @@ const colorOptions = [
   { name: "Orange", value: "orange", primary: "#c2410c", light: "#fff7ed" },
   { name: "Red", value: "red", primary: "#b91c1c", light: "#fef2f2" },
   { name: "Teal", value: "teal", primary: "#0f766e", light: "#f0fdfa" },
+  { name: "Pink", value: "pink", primary: "#db2777", light: "#fdf2f8" },
+  { name: "Indigo", value: "indigo", primary: "#4338ca", light: "#eef2ff" },
+  { name: "Cyan", value: "cyan", primary: "#0891b2", light: "#ecfeff" },
+  { name: "Amber", value: "amber", primary: "#d97706", light: "#fffbeb" },
+  { name: "Emerald", value: "emerald", primary: "#059669", light: "#ecfdf5" },
+  { name: "Violet", value: "violet", primary: "#7c3aed", light: "#f5f3ff" },
 ];
 
 export default function CustomizePage() {
   const [teamName, setTeamName] = useState("");
-  const [selectedColor, setSelectedColor] = useState("green");
+  const [selectedLightColor, setSelectedLightColor] = useState("green");
+  const [selectedDarkColor, setSelectedDarkColor] = useState("green");
   const [generatedLink, setGeneratedLink] = useState("");
   const [copied, setCopied] = useState(false);
 
@@ -25,7 +32,7 @@ export default function CustomizePage() {
     const baseUrl = window.location.origin;
     const encodedTeamName = encodeURIComponent(teamName.trim());
 
-    const link = `${baseUrl}?team=${encodedTeamName}&color=${selectedColor}`;
+    const link = `${baseUrl}?team=${encodedTeamName}&lightColor=${selectedLightColor}&darkColor=${selectedDarkColor}`;
     setGeneratedLink(link);
   };
 
@@ -49,7 +56,7 @@ export default function CustomizePage() {
             Customize Your Goal Planner
           </h1>
           <p className="text-slate-600 dark:text-slate-300 mb-8">
-            Create a personalized link for your team with custom branding
+            Create a personalized link for your team with custom branding. Choose different colors for light and dark modes.
           </p>
 
           <form onSubmit={handleGenerate} className="space-y-6">
@@ -69,35 +76,71 @@ export default function CustomizePage() {
               />
             </div>
 
-            {/* Color Selection */}
+            {/* Light Mode Color Selection */}
             <div>
               <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-3">
-                Brand Color
+                Light Mode Brand Color
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                 {colorOptions.map((color) => (
                   <button
                     key={color.value}
                     type="button"
-                    onClick={() => setSelectedColor(color.value)}
-                    className={`relative p-4 rounded-lg border-2 transition-all ${
-                      selectedColor === color.value
+                    onClick={() => setSelectedLightColor(color.value)}
+                    className={`relative p-3 rounded-lg border-2 transition-all ${
+                      selectedLightColor === color.value
                         ? "border-slate-900 dark:border-white shadow-md"
                         : "border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500"
                     }`}
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                       <div
-                        className="w-8 h-8 rounded-full"
+                        className="w-6 h-6 rounded-full shrink-0"
                         style={{ backgroundColor: color.primary }}
                       />
-                      <span className="text-sm font-medium text-slate-900 dark:text-white">
+                      <span className="text-xs font-medium text-slate-900 dark:text-white truncate">
                         {color.name}
                       </span>
                     </div>
-                    {selectedColor === color.value && (
-                      <div className="absolute top-2 right-2 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-                        <Check className="w-3 h-3 text-white" />
+                    {selectedLightColor === color.value && (
+                      <div className="absolute top-1.5 right-1.5 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                        <Check className="w-2.5 h-2.5 text-white" />
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Dark Mode Color Selection */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-3">
+                Dark Mode Brand Color
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                {colorOptions.map((color) => (
+                  <button
+                    key={color.value}
+                    type="button"
+                    onClick={() => setSelectedDarkColor(color.value)}
+                    className={`relative p-3 rounded-lg border-2 transition-all ${
+                      selectedDarkColor === color.value
+                        ? "border-slate-900 dark:border-white shadow-md"
+                        : "border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-6 h-6 rounded-full shrink-0"
+                        style={{ backgroundColor: color.primary }}
+                      />
+                      <span className="text-xs font-medium text-slate-900 dark:text-white truncate">
+                        {color.name}
+                      </span>
+                    </div>
+                    {selectedDarkColor === color.value && (
+                      <div className="absolute top-1.5 right-1.5 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                        <Check className="w-2.5 h-2.5 text-white" />
                       </div>
                     )}
                   </button>
@@ -145,7 +188,7 @@ export default function CustomizePage() {
                 </button>
               </div>
               <p className="mt-3 text-xs text-slate-600 dark:text-slate-300">
-                Share this link with your team. When they visit it, they'll see "{teamName}" as the app name with your selected color theme.
+                Share this link with your team. When they visit it, they'll see "{teamName}" as the app name with your selected colors for light and dark modes.
               </p>
             </div>
           )}
@@ -155,29 +198,64 @@ export default function CustomizePage() {
         {teamName && (
           <div className="mt-6 bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-6">
             <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Preview</h2>
-            <div
-              className="p-6 rounded-lg"
-              style={{
-                backgroundColor: colorOptions.find(c => c.value === selectedColor)?.light,
-                borderColor: colorOptions.find(c => c.value === selectedColor)?.primary,
-                borderWidth: '2px'
-              }}
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-xl"
-                  style={{ backgroundColor: colorOptions.find(c => c.value === selectedColor)?.primary }}
-                >
-                  {teamName.charAt(0).toUpperCase()}
-                </div>
-                <div>
-                  <h3
-                    className="font-bold text-lg"
-                    style={{ color: colorOptions.find(c => c.value === selectedColor)?.primary }}
+
+            {/* Light Mode Preview */}
+            <div className="mb-4">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">Light Mode</p>
+              <div
+                className="p-6 rounded-lg"
+                style={{
+                  backgroundColor: colorOptions.find(c => c.value === selectedLightColor)?.light,
+                  borderColor: colorOptions.find(c => c.value === selectedLightColor)?.primary,
+                  borderWidth: '2px'
+                }}
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-xl"
+                    style={{ backgroundColor: colorOptions.find(c => c.value === selectedLightColor)?.primary }}
                   >
-                    {teamName}
-                  </h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Goal Planner</p>
+                    {teamName.charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <h3
+                      className="font-bold text-lg"
+                      style={{ color: colorOptions.find(c => c.value === selectedLightColor)?.primary }}
+                    >
+                      {teamName}
+                    </h3>
+                    <p className="text-sm text-slate-600">Goal Planner</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Dark Mode Preview */}
+            <div>
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">Dark Mode</p>
+              <div
+                className="p-6 rounded-lg bg-slate-900"
+                style={{
+                  borderColor: colorOptions.find(c => c.value === selectedDarkColor)?.primary,
+                  borderWidth: '2px'
+                }}
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-xl"
+                    style={{ backgroundColor: colorOptions.find(c => c.value === selectedDarkColor)?.primary }}
+                  >
+                    {teamName.charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <h3
+                      className="font-bold text-lg"
+                      style={{ color: colorOptions.find(c => c.value === selectedDarkColor)?.primary }}
+                    >
+                      {teamName}
+                    </h3>
+                    <p className="text-sm text-slate-400">Goal Planner</p>
+                  </div>
                 </div>
               </div>
             </div>
