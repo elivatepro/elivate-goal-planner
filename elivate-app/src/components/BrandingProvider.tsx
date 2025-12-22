@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { useBrandingStore, ColorTheme, colorThemes } from "@/store/brandingStore";
+import { DynamicTheme } from "./DynamicTheme";
 
 export function BrandingProvider({ children }: { children: React.ReactNode }) {
   const searchParams = useSearchParams();
@@ -18,5 +19,10 @@ export function BrandingProvider({ children }: { children: React.ReactNode }) {
     }
   }, [searchParams, setCustomBranding]);
 
-  return <>{children}</>;
+  return (
+    <>
+      <DynamicTheme />
+      {children}
+    </>
+  );
 }

@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import clsx from "clsx";
 import { Target } from "lucide-react";
 import { useGoalStore } from "@/lib/store";
-import { useBrandingStore, colorThemes } from "@/store/brandingStore";
+import { useBrandingStore } from "@/store/brandingStore";
 import { BrandingProvider } from "@/components/BrandingProvider";
 import { isValidMemberId } from "@/lib/member-ids";
 import {
@@ -183,7 +183,7 @@ function SimplePreviewModal({
 
 export default function Home() {
   const [theme, setTheme] = useState<"light" | "dark">("light");
-  const { teamName, colorTheme } = useBrandingStore();
+  const { teamName } = useBrandingStore();
   const {
     memberId,
     mode,
@@ -195,7 +195,6 @@ export default function Home() {
     calculations,
   } = useGoalStore();
   const goalCardRef = useRef<HTMLDivElement>(null);
-  const brandColor = colorThemes[colorTheme];
 
   useEffect(() => {
     const stored = typeof window !== "undefined" ? localStorage.getItem("elivate-theme") : null;
@@ -228,13 +227,12 @@ export default function Home() {
                 className="flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-brand rounded-md"
               >
                 <div
-                  className="h-12 w-12 overflow-hidden rounded-full flex items-center justify-center text-white"
-                  style={{ backgroundColor: brandColor.primary }}
+                  className="h-12 w-12 overflow-hidden rounded-full flex items-center justify-center text-white bg-brand"
                 >
                   <Target className="w-6 h-6" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold uppercase tracking-[0.18em]" style={{ color: brandColor.primary }}>
+                  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand">
                     {teamName}
                   </p>
                   <p className="text-xl font-semibold text-ink">Goal Planner</p>
