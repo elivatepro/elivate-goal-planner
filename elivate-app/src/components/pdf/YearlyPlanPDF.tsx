@@ -169,9 +169,9 @@ export function YearlyPlanPDF({
 }: Props) {
   return (
     <Document>
-      <Page size="A4" style={styles.page}>
+      <Page size="A4" style={styles.page} wrap>
         {/* Header */}
-        <View style={styles.header}>
+        <View style={styles.header} fixed>
           <View style={styles.headerLeft}>
             <Text style={styles.headerTitle}>Elivate Network</Text>
             <Text style={styles.headerSubtitle}>Goal Plan {year}</Text>
@@ -316,7 +316,7 @@ export function YearlyPlanPDF({
         </View>
 
         {/* Personal Development */}
-        <View style={styles.section} wrap={false}>
+        <View style={styles.section}>
           <Text style={styles.sectionTitle}>Personal Development</Text>
           <View style={styles.whiteBox}>
             <Text style={styles.whiteBoxLabel}>Goal</Text>
@@ -359,7 +359,7 @@ export function YearlyPlanPDF({
         </View>
 
         {/* Daily IPAs */}
-        <View style={styles.section} wrap={false}>
+        <View style={styles.section}>
           <Text style={styles.sectionTitle}>Daily IPAs</Text>
           <View style={{ marginBottom: 10 }}>
             {yearly.ipas.activities.filter(Boolean).length ? (
@@ -385,7 +385,7 @@ export function YearlyPlanPDF({
         </View>
 
         {/* Commitment */}
-        <View style={styles.section} wrap={false}>
+        <View style={styles.section}>
           <Text style={styles.sectionTitle}>Commitment</Text>
           <View style={styles.row}>
             <Text style={styles.rowLabel}>Review Day</Text>

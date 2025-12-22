@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import Link from "next/link";
 import jsPDF from "jspdf";
 import { useForm } from "react-hook-form";
@@ -218,88 +218,89 @@ export default function Home() {
   }, [memberId, mode]);
 
   return (
-    <BrandingProvider>
-      <div className="min-h-screen bg-page px-4 py-8 sm:py-10">
-        <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
-          <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <Link
-              href="/"
-              className="flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-brand rounded-md"
-            >
-              <div
-                className="h-12 w-12 overflow-hidden rounded-full flex items-center justify-center text-white"
-                style={{ backgroundColor: brandColor.primary }}
+    <Suspense fallback={null}>
+      <BrandingProvider>
+        <div className="min-h-screen bg-page px-4 py-8 sm:py-10">
+          <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
+            <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <Link
+                href="/"
+                className="flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-brand rounded-md"
               >
-                <Target className="w-6 h-6" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.18em]" style={{ color: brandColor.primary }}>
-                  {teamName}
-                </p>
-                <p className="text-xl font-semibold text-ink">Goal Planner</p>
-              </div>
-            </Link>
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-              <div className="pill">
-                <span>Stateless</span>
-                <span className="text-muted">|</span>
-                <span>PDF Ready</span>
-              </div>
-              <Link href="/why" className="button button-secondary hidden sm:inline-flex">
-                Why we set goals
+                <div
+                  className="h-12 w-12 overflow-hidden rounded-full flex items-center justify-center text-white"
+                  style={{ backgroundColor: brandColor.primary }}
+                >
+                  <Target className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-[0.18em]" style={{ color: brandColor.primary }}>
+                    {teamName}
+                  </p>
+                  <p className="text-xl font-semibold text-ink">Goal Planner</p>
+                </div>
               </Link>
-              <button
-                type="button"
-                className="button button-secondary h-11 w-11 p-0 text-lg"
-                onClick={() => {
-                  setTheme((prev) => (prev === "light" ? "dark" : "light"));
-                }}
-                aria-label={theme === "light" ? "Enable dark mode" : "Disable dark mode"}
-              >
-                {theme === "light" ? "🌙" : "☀️"}
-              </button>
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                <div className="pill">
+                  <span>Stateless</span>
+                  <span className="text-muted">|</span>
+                  <span>PDF Ready</span>
+                </div>
+                <Link href="/why" className="button button-secondary hidden sm:inline-flex">
+                  Why we set goals
+                </Link>
+                <button
+                  type="button"
+                  className="button button-secondary h-11 w-11 p-0 text-lg"
+                  onClick={() => {
+                    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+                  }}
+                  aria-label={theme === "light" ? "Enable dark mode" : "Disable dark mode"}
+                >
+                  {theme === "light" ? "🌙" : "☀️"}
+                </button>
+              </div>
+            </header>
+
+            <div className="card p-6 sm:p-8">
+              {stage === "gate" && (
+                <MemberGate
+                  onSuccess={(id) => {
+                    setMemberId(id);
+                  }}
+                />
+              )}
+
+              {stage === "mode" && (
+                <ModeSelect
+                  onSelect={(choice) => {
+                    setMode(choice);
+                    setCurrentStep(0);
+                  }}
+                  onReset={() => setMemberId("")}
+                  memberId={memberId}
+                />
+              )}
+
+              {stage === "wizard" && mode === "yearly" && (
+                <YearlyWizard
+                  currentStep={currentStep}
+                  setCurrentStep={setCurrentStep}
+                  steps={yearlySteps}
+                  goalCardRef={goalCardRef}
+                />
+              )}
+
+              {stage === "wizard" && mode === "monthly" && (
+                <MonthlyWizard
+                  currentStep={currentStep}
+                  setCurrentStep={setCurrentStep}
+                  steps={monthlySteps}
+                />
+              )}
             </div>
-          </header>
-
-          <div className="card p-6 sm:p-8">
-            {stage === "gate" && (
-              <MemberGate
-                onSuccess={(id) => {
-                  setMemberId(id);
-                }}
-              />
-            )}
-
-            {stage === "mode" && (
-              <ModeSelect
-                onSelect={(choice) => {
-                  setMode(choice);
-                  setCurrentStep(0);
-                }}
-                onReset={() => setMemberId("")}
-                memberId={memberId}
-              />
-            )}
-
-            {stage === "wizard" && mode === "yearly" && (
-              <YearlyWizard
-                currentStep={currentStep}
-                setCurrentStep={setCurrentStep}
-                steps={yearlySteps}
-                goalCardRef={goalCardRef}
-              />
-            )}
-
-            {stage === "wizard" && mode === "monthly" && (
-              <MonthlyWizard
-                currentStep={currentStep}
-                setCurrentStep={setCurrentStep}
-                steps={monthlySteps}
-              />
-            )}
           </div>
         </div>
-      </div>
 
       {/* Hidden goal card for HTML->PDF rendering */}
       <div
@@ -443,6 +444,7 @@ export default function Home() {
         </div>
       </div>
     </BrandingProvider>
+  </Suspense>
   );
 }
 
