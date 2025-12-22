@@ -57,25 +57,29 @@ export async function generateYearlyPlanPDF({
   memberId,
   signatureName,
   year = "2026",
+  teamName = "Elivate Network",
 }: {
   yearly: YearlyGoals;
   calculations: Calculations;
   memberId: string;
   signatureName?: string;
   year?: string;
+  teamName?: string;
 }) {
   // Dynamic import to avoid SSR issues
   const { YearlyPlanPDF } = await import("@/components/pdf/YearlyPlanPDF");
   const { createElement } = await import("react");
 
   const safeName = (signatureName || memberId || "Plan").replace(/[^a-zA-Z0-9]/g, "-");
-  const filename = `Elivate-Yearly-Plan-${safeName}.pdf`;
+  const safeTeamName = teamName.replace(/[^a-zA-Z0-9]/g, "-");
+  const filename = `${safeTeamName}-Yearly-Plan-${safeName}.pdf`;
   const document = createElement(YearlyPlanPDF, {
     yearly,
     calculations,
     memberId,
     signatureName,
     year,
+    teamName,
   });
 
   await generateAndDownloadPDF(document, filename);
@@ -88,21 +92,25 @@ export async function generateMonthlyPlanPDF({
   monthly,
   calculations,
   memberId,
+  teamName = "Elivate Network",
 }: {
   monthly: MonthlyGoals;
   calculations: Calculations;
   memberId: string;
+  teamName?: string;
 }) {
   // Dynamic import to avoid SSR issues
   const { MonthlyPlanPDF } = await import("@/components/pdf/MonthlyPlanPDF");
   const { createElement } = await import("react");
 
   const safeName = `${monthly.month || "Month"}-${memberId || "Plan"}`.replace(/[^a-zA-Z0-9]/g, "-");
-  const filename = `Elivate-Monthly-Plan-${safeName}.pdf`;
+  const safeTeamName = teamName.replace(/[^a-zA-Z0-9]/g, "-");
+  const filename = `${safeTeamName}-Monthly-Plan-${safeName}.pdf`;
   const document = createElement(MonthlyPlanPDF, {
     monthly,
     calculations,
     memberId,
+    teamName,
   });
 
   await generateAndDownloadPDF(document, filename);
@@ -116,23 +124,27 @@ export async function generateGoalCardPDF({
   calculations,
   memberId,
   signatureName,
+  teamName = "Elivate Network",
 }: {
   yearly: YearlyGoals;
   calculations: Calculations;
   memberId: string;
   signatureName?: string;
+  teamName?: string;
 }) {
   // Dynamic import to avoid SSR issues
   const { GoalCardPDF } = await import("@/components/pdf/GoalCardPDF");
   const { createElement } = await import("react");
 
   const safeName = (signatureName || memberId || "Card").replace(/[^a-zA-Z0-9]/g, "-");
-  const filename = `Elivate-Goal-Card-${safeName}.pdf`;
+  const safeTeamName = teamName.replace(/[^a-zA-Z0-9]/g, "-");
+  const filename = `${safeTeamName}-Goal-Card-${safeName}.pdf`;
   const document = createElement(GoalCardPDF, {
     yearly,
     calculations,
     memberId,
     signatureName,
+    teamName,
   });
 
   await generateAndDownloadPDF(document, filename);
@@ -147,12 +159,14 @@ export async function generateYearlyPlanPreview({
   memberId,
   signatureName,
   year = "2026",
+  teamName = "Elivate Network",
 }: {
   yearly: YearlyGoals;
   calculations: Calculations;
   memberId: string;
   signatureName?: string;
   year?: string;
+  teamName?: string;
 }): Promise<string> {
   const { YearlyPlanPDF } = await import("@/components/pdf/YearlyPlanPDF");
   const { createElement } = await import("react");
@@ -163,6 +177,7 @@ export async function generateYearlyPlanPreview({
     memberId,
     signatureName,
     year,
+    teamName,
   });
 
   return await generatePDFPreview(document);
@@ -175,10 +190,12 @@ export async function generateMonthlyPlanPreview({
   monthly,
   calculations,
   memberId,
+  teamName = "Elivate Network",
 }: {
   monthly: MonthlyGoals;
   calculations: Calculations;
   memberId: string;
+  teamName?: string;
 }): Promise<string> {
   const { MonthlyPlanPDF } = await import("@/components/pdf/MonthlyPlanPDF");
   const { createElement } = await import("react");
@@ -187,6 +204,7 @@ export async function generateMonthlyPlanPreview({
     monthly,
     calculations,
     memberId,
+    teamName,
   });
 
   return await generatePDFPreview(document);
@@ -200,11 +218,13 @@ export async function generateGoalCardPreview({
   calculations,
   memberId,
   signatureName,
+  teamName = "Elivate Network",
 }: {
   yearly: YearlyGoals;
   calculations: Calculations;
   memberId: string;
   signatureName?: string;
+  teamName?: string;
 }): Promise<string> {
   const { GoalCardPDF } = await import("@/components/pdf/GoalCardPDF");
   const { createElement } = await import("react");
@@ -214,6 +234,7 @@ export async function generateGoalCardPreview({
     calculations,
     memberId,
     signatureName,
+    teamName,
   });
 
   return await generatePDFPreview(document);

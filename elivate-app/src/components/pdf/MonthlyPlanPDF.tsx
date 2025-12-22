@@ -12,6 +12,7 @@ type Props = {
   monthly: MonthlyGoals;
   calculations: Calculations;
   memberId: string;
+  teamName?: string;
 };
 
 // PDF-safe currency formatter (avoids special symbols not in Lexend font)
@@ -132,14 +133,14 @@ const styles = StyleSheet.create({
   },
 });
 
-export function MonthlyPlanPDF({ monthly, calculations, memberId }: Props) {
+export function MonthlyPlanPDF({ monthly, calculations, memberId, teamName = "Elivate Network" }: Props) {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <Text style={styles.headerTitle}>Elivate Network</Text>
+            <Text style={styles.headerTitle}>{teamName}</Text>
             <Text style={styles.headerSubtitle}>Monthly Goal Plan</Text>
           </View>
           <View style={styles.headerRight}>

@@ -120,26 +120,26 @@ export default function CustomizePage() {
               <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">
                 Your Custom Link
               </label>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <input
                   type="text"
                   value={generatedLink}
                   readOnly
-                  className="flex-1 px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm"
+                  className="flex-1 px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm overflow-x-auto"
                 />
                 <button
                   onClick={handleCopy}
-                  className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors flex items-center gap-2"
+                  className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors flex items-center justify-center gap-2 whitespace-nowrap shrink-0"
                 >
                   {copied ? (
                     <>
                       <Check className="w-4 h-4" />
-                      Copied!
+                      <span>Copied!</span>
                     </>
                   ) : (
                     <>
                       <Copy className="w-4 h-4" />
-                      Copy
+                      <span>Copy</span>
                     </>
                   )}
                 </button>

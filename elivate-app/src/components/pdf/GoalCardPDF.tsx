@@ -14,6 +14,7 @@ type Props = {
   calculations: Calculations;
   memberId: string;
   signatureName?: string;
+  teamName?: string;
 };
 
 // PDF-safe currency formatter (avoids special symbols not in Lexend font)
@@ -160,7 +161,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export function GoalCardPDF({ yearly, calculations, memberId, signatureName }: Props) {
+export function GoalCardPDF({ yearly, calculations, memberId, signatureName, teamName = "ELIVATE NETWORK" }: Props) {
   const ipaList = yearly.ipas.activities.filter(Boolean).slice(0, 10);
 
   return (
@@ -168,7 +169,7 @@ export function GoalCardPDF({ yearly, calculations, memberId, signatureName }: P
       <Page size="A4" style={styles.page}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerLabel}>ELIVATE NETWORK</Text>
+          <Text style={styles.headerLabel}>{teamName.toUpperCase()}</Text>
           <Text style={styles.headerTitle}>My 2026 Vision</Text>
           <Text style={styles.headerMeta}>
             Member: {memberId || "—"} {signatureName ? `| Signed: ${signatureName}` : ""}

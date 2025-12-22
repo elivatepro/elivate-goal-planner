@@ -14,6 +14,7 @@ type Props = {
   memberId: string;
   signatureName?: string;
   year?: string;
+  teamName?: string;
 };
 
 // PDF-safe currency formatter (avoids special symbols not in Lexend font)
@@ -166,6 +167,7 @@ export function YearlyPlanPDF({
   memberId,
   signatureName,
   year = "2026",
+  teamName = "Elivate Network",
 }: Props) {
   return (
     <Document>
@@ -173,7 +175,7 @@ export function YearlyPlanPDF({
         {/* Header */}
         <View style={styles.header} fixed>
           <View style={styles.headerLeft}>
-            <Text style={styles.headerTitle}>Elivate Network</Text>
+            <Text style={styles.headerTitle}>{teamName}</Text>
             <Text style={styles.headerSubtitle}>Goal Plan {year}</Text>
           </View>
           <View style={styles.headerRight}>

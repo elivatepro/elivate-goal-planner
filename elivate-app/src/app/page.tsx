@@ -1858,6 +1858,7 @@ function YearlyReview({
         memberId: memberId || "ELV",
         signatureName: yearly.commitment.signatureName,
         year: "2026",
+        teamName,
       });
       setPdfStatus("Downloaded.");
       setTimeout(() => setPdfStatus(""), 2000);
@@ -1875,6 +1876,7 @@ function YearlyReview({
         calculations,
         memberId: memberId || "ELV",
         signatureName: yearly.commitment.signatureName,
+        teamName,
       });
       setPdfStatus("Downloaded.");
       setTimeout(() => setPdfStatus(""), 2000);
@@ -1893,6 +1895,7 @@ function YearlyReview({
         memberId: memberId || "ELV",
         signatureName: yearly.commitment.signatureName,
         year: "2026",
+        teamName,
       });
       setYearlyPreviewUrl(url);
       setShowYearlyPreview(true);
@@ -1911,6 +1914,7 @@ function YearlyReview({
         calculations,
         memberId: memberId || "ELV",
         signatureName: yearly.commitment.signatureName,
+        teamName,
       });
       setGoalCardPreviewUrl(url);
       setShowGoalCardPreview(true);
@@ -2326,6 +2330,7 @@ function MonthlyStep({ onNext }: { onNext: () => void }) {
 
 function MonthlyReview({ onBack }: { onBack: () => void }) {
   const { monthly, calculations, memberId, reset, setCurrentStep } = useGoalStore();
+  const { teamName } = useBrandingStore();
   const [pdfStatus, setPdfStatus] = useState<string>("");
   const [showMonthlyPreview, setShowMonthlyPreview] = useState(false);
   const [monthlyPreviewUrl, setMonthlyPreviewUrl] = useState<string | null>(null);
@@ -2339,6 +2344,7 @@ function MonthlyReview({ onBack }: { onBack: () => void }) {
         monthly,
         calculations,
         memberId: memberId || "ELV",
+        teamName,
       });
       setPdfStatus("Downloaded.");
       setTimeout(() => setPdfStatus(""), 2000);
@@ -2360,6 +2366,7 @@ function MonthlyReview({ onBack }: { onBack: () => void }) {
         monthly,
         calculations,
         memberId: memberId || "ELV",
+        teamName,
       });
       setMonthlyPreviewUrl(url);
       setShowMonthlyPreview(true);
