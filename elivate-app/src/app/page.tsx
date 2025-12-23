@@ -46,6 +46,7 @@ const monthlySteps = [
 ];
 
 const minValueRule = { value: 10, message: "Minimum is 10" };
+const teamSizeMinRule = { value: 0, message: "Minimum is 0" };
 const rankOptions = [
   "Member",
   "Distributor",
@@ -974,14 +975,18 @@ function NetworkStep({ onNext, onBack }: { onNext: () => void; onBack: () => voi
     "q4",
   ];
 
-  const currentTeam = Number(watch("currentTeamSize")) || 0;
-  const targetTeam = Number(watch("targetTeamSize")) || 0;
+  const currentTeamSizeValue = watch("currentTeamSize");
+  const targetTeamSizeValue = watch("targetTeamSize");
+  const currentTeam = Number(currentTeamSizeValue || 0);
+  const targetTeam = Number(targetTeamSizeValue || 0);
   const incomeGoal = Number(watch("incomeGoal")) || 0;
 
-  const recruitment =
-    currentTeam && targetTeam
-      ? calculateRecruitment(currentTeam, targetTeam, 12)
-      : null;
+  const hasTeamSizes =
+    currentTeamSizeValue !== undefined &&
+    targetTeamSizeValue !== undefined &&
+    currentTeamSizeValue !== "" &&
+    targetTeamSizeValue !== "";
+  const recruitment = hasTeamSizes ? calculateRecruitment(currentTeam, targetTeam, 12) : null;
   const income =
     incomeGoal > 0 ? calculateIncomeBreakdown(incomeGoal) : undefined;
 
@@ -1000,7 +1005,8 @@ function NetworkStep({ onNext, onBack }: { onNext: () => void; onBack: () => voi
       why: values.why,
     });
 
-    if (target && current) {
+    const hasTeamSizes = values.currentTeamSize !== "" && values.targetTeamSize !== "";
+    if (hasTeamSizes) {
       const calc = calculateRecruitment(current, target, 12);
       setCalculations({
         recruitmentNeeded: calc.needed,
@@ -1039,9 +1045,9 @@ function NetworkStep({ onNext, onBack }: { onNext: () => void; onBack: () => voi
             type="number"
             className="input"
             placeholder="10"
-            min={minValueRule.value}
+            min={teamSizeMinRule.value}
             {...register("currentTeamSize", {
-              min: minValueRule,
+              min: teamSizeMinRule,
               required: "Current team size is required.",
             })}
           />
@@ -1057,9 +1063,9 @@ function NetworkStep({ onNext, onBack }: { onNext: () => void; onBack: () => voi
             type="number"
             className="input"
             placeholder="120"
-            min={minValueRule.value}
+            min={teamSizeMinRule.value}
             {...register("targetTeamSize", {
-              min: minValueRule,
+              min: teamSizeMinRule,
               required: "Target team size is required.",
             })}
           />
