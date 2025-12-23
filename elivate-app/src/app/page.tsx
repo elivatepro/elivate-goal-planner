@@ -711,12 +711,6 @@ function VisionStep({ onNext }: { onNext: () => void }) {
       motivation: values.motivation,
       currency,
     });
-    if (total) {
-      setCalculations({
-        nmMonthlyIncome: total / 12,
-        nmWeeklyIncome: total / 52,
-      });
-    }
     onNext();
   };
 

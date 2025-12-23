@@ -169,6 +169,11 @@ export function YearlyPlanPDF({
   year = "2026",
   teamName = "Elivate Network",
 }: Props) {
+  const annualVisionIncome =
+    yearly.vision.dreamGoal ?? yearly.vision.totalIncomeGoal ?? null;
+  const monthlyVisionIncome = annualVisionIncome ? annualVisionIncome / 12 : null;
+  const weeklyVisionIncome = annualVisionIncome ? annualVisionIncome / 52 : null;
+
   return (
     <Document>
       <Page size="A4" style={styles.page} wrap>
@@ -210,13 +215,13 @@ export function YearlyPlanPDF({
           <View style={styles.row}>
             <Text style={styles.rowLabel}>Monthly Target</Text>
             <Text style={styles.rowValue}>
-              {formatCurrencyForPDF(calculations.nmMonthlyIncome, yearly.vision.currency)}
+              {formatCurrencyForPDF(monthlyVisionIncome, yearly.vision.currency)}
             </Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.rowLabel}>Weekly Target</Text>
             <Text style={styles.rowValue}>
-              {formatCurrencyForPDF(calculations.nmWeeklyIncome, yearly.vision.currency)}
+              {formatCurrencyForPDF(weeklyVisionIncome, yearly.vision.currency)}
             </Text>
           </View>
         </View>

@@ -16,6 +16,11 @@ export function YearlyPlanHTML({
   signatureName,
   year = "2026",
 }: Props) {
+  const annualVisionIncome =
+    yearly.vision.dreamGoal ?? yearly.vision.totalIncomeGoal ?? null;
+  const monthlyVisionIncome = annualVisionIncome ? annualVisionIncome / 12 : null;
+  const weeklyVisionIncome = annualVisionIncome ? annualVisionIncome / 52 : null;
+
   return (
     <div className="pdf-template bg-white w-[210mm] min-h-[297mm] mx-auto p-12 font-sans text-gray-900">
       {/* Header */}
@@ -59,13 +64,17 @@ export function YearlyPlanHTML({
           <div className="flex justify-between text-xs">
             <span className="text-gray-600">Monthly Target</span>
             <span className="font-bold">
-              {calculations.nmMonthlyIncome ? formatCurrency(calculations.nmMonthlyIncome, yearly.vision.currency) : "—"}
+              {monthlyVisionIncome
+                ? formatCurrency(monthlyVisionIncome, yearly.vision.currency)
+                : "—"}
             </span>
           </div>
           <div className="flex justify-between text-xs">
             <span className="text-gray-600">Weekly Target</span>
             <span className="font-bold">
-              {calculations.nmWeeklyIncome ? formatCurrency(calculations.nmWeeklyIncome, yearly.vision.currency) : "—"}
+              {weeklyVisionIncome
+                ? formatCurrency(weeklyVisionIncome, yearly.vision.currency)
+                : "—"}
             </span>
           </div>
         </div>

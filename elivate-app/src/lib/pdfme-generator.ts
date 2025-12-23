@@ -108,13 +108,16 @@ export async function generatePlanPdfWithPdfme({
   memberId: string;
 }) {
   const schemas = makePlanSchemas();
+  const annualVisionIncome =
+    yearly.vision.dreamGoal ?? yearly.vision.totalIncomeGoal ?? null;
+  const monthlyVisionIncome = annualVisionIncome ? annualVisionIncome / 12 : null;
 
   const planText: PlanInput = {
     title: "My 2026 Goal Plan",
     meta: `Member: ${memberId || "—"} | Signed: ${yearly.commitment.signatureName || "—"} | Word: ${yearly.vision.word || "—"}`,
     visionTitle: "Annual Vision",
     vision: yearly.vision.statement || "—",
-    visionMoney: `Income: ${yearly.vision.dreamGoal ? formatCurrency(yearly.vision.dreamGoal, yearly.vision.currency) : "—"} | Min/Real/Dream: ${yearly.vision.minimumGoal || "—"} / ${yearly.vision.realisticGoal || "—"} / ${yearly.vision.dreamGoal || "—"} | Monthly: ${calculations.nmMonthlyIncome ? formatCurrency(calculations.nmMonthlyIncome, yearly.vision.currency) : "—"}`,
+    visionMoney: `Income: ${yearly.vision.dreamGoal ? formatCurrency(yearly.vision.dreamGoal, yearly.vision.currency) : "—"} | Min/Real/Dream: ${yearly.vision.minimumGoal || "—"} / ${yearly.vision.realisticGoal || "—"} / ${yearly.vision.dreamGoal || "—"} | Monthly: ${monthlyVisionIncome ? formatCurrency(monthlyVisionIncome, yearly.vision.currency) : "—"}`,
     motivationTitle: "Motivation",
     motivation: yearly.vision.motivation || "—",
     networkTitle: "Network Marketing",
